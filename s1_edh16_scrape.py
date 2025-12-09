@@ -89,7 +89,7 @@ def scrape_edhtop16(url):
         commander_name = title_text.split('|')[0].strip()
 
         # Find all deck entries using the correct class structure
-        deck_entries = soup.find_all('div', class_='group relative overflow-hidden rounded-lg bg-white shadow transition-shadow cursor-pointer hover:shadow-lg')
+        deck_entries = soup.find_all('div', class_='group relative overflow-hidden rounded-lg bg-white shadow-sm transition-shadow cursor-pointer hover:shadow-lg')
         print(f"Found {len(deck_entries)} deck entries")
 
         decks = []
@@ -101,23 +101,25 @@ def scrape_edhtop16(url):
 
             url = deck_link['href'].strip() #you have to do this because they sometimes make a small typo and add a space!!
 
+            if "topdeck.gg" in url:
+
+                deck_id = None
+
             # Skip if not a Moxfield URL
-            if "moxfield.com" not in url:
-                continue
+            elif "moxfield.com" in url:
+                # Extract the deck ID from the URL
+                deck_id_match = re.search(r'moxfield\.com/decks/([^/]+)', url)
+                if not deck_id_match:
+                    continue
 
-            # Extract the deck ID from the URL
-            deck_id_match = re.search(r'moxfield\.com/decks/([^/]+)', url)
-            if not deck_id_match:
-                continue
-
-            deck_id = deck_id_match.group(1)
+                deck_id = deck_id_match.group(1)
 
             # Create deck info dictionary with the required fields
             deck_info = {
                 'commander': commander_name,
                 'deck_id': deck_id,
                 'url': url,
-                'name': deck_link.text.strip()
+                'name': deck_link.text.strip(), # todo: get rid of emoji garbage in player name
             }
 
             # Extract tournament name (from the second <a> tag)
@@ -191,7 +193,8 @@ def scrape_edhtop16(url):
 
 def main():
     # Use the URL directly
-    url = "https://edhtop16.com/commander/Hashaton%2C%20Scarab's%20Fist?timePeriod=THREE_MONTHS&minEventSize=32"
+    # url = "https://edhtop16.com/commander/The%20Gitrog%20Monster?timePeriod=ONE_MONTH&minEventSize=100"
+    url = "https://edhtop16.com/commander/Kraum%2C%20Ludevic's%20Opus%20%2F%20Tymna%20the%20Weaver?timePeriod=ONE_MONTH&minEventSize=100"
 
     # Scrape the data
     data = scrape_edhtop16(url)
