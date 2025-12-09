@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException, SessionNotCreatedException, InvalidSessionIdException
 from selenium_stealth import stealth
-from dir_utils import get_latest_output_dir
+from utils import get_latest_output_dir, extract_deck_id
 
 #todo: more elegantly handle invalid links - you should know when to give up if the content is Page Not Found
 
@@ -110,16 +110,6 @@ def scrape_deck_pages(csv_file_path=None, output_dir=None):
             print(f"Error initializing WebDriver: {e}")
             return None
 
-    # Function to extract deck ID from URL
-    def extract_deck_id(url):
-        # Try to match the deck ID pattern in Moxfield URLs
-        match = re.search(r'/decks/([a-zA-Z0-9_-]+)', url)
-        if match:
-            deck_id = match.group(1)
-        else:
-            deck_id = url.split("/")[-1]
-        return deck_id
-
     # Initialize the WebDriver
     driver = init_driver()
     if not driver:
@@ -168,7 +158,7 @@ def scrape_deck_pages(csv_file_path=None, output_dir=None):
         print(f"{'='*80}")
 
         # only in case of moxfield, this is untested
-        if isinstance(row.get("deck_id", None), str):
+        if "moxfield" in url:
             max_retries = 3
             for retry in range(max_retries):
                 try:
