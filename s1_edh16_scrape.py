@@ -112,7 +112,7 @@ def scrape_edhtop16(url):
                 'commander': commander_name,
                 'deck_id': deck_id,
                 'url': url,
-                'name': deck_link.text.strip(), # todo: get rid of emoji garbage in player name
+                'name': ''.join(filter(str.isalnum, deck_link.text.strip())) #leave only alphanumerics to filter out emojis and other nonsense
             }
 
             # Extract tournament name (from the second <a> tag)
